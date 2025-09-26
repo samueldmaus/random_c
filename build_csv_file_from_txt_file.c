@@ -75,10 +75,10 @@ int main() {
 
   char *HEADER_ROW = "client_id,hosp_num,client_status,close_hosp_phase";
 
-  // phase 1 file changes
+  //// PHASE 1 file changes
   _chdir(phase_paths[0]);
 
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 12; i++) {
     printf("==== reading file name from phase 1 str arry at position %d: %s\n",
            i, phase_1_files[i]);
 
@@ -164,24 +164,182 @@ int main() {
     free(output_file_name);
   }
 
-  // phase 2 file changes
+  //// PHASE 2 file changes
   _chdir(phase_paths[1]);
 
   for (int i = 0; i < 98; i++) {
     printf("==== reading file name from phase 2 str arry at position %d: %s\n",
            i, phase_2_files[i]);
 
+    // open file
+    FILE *file = fopen(phase_2_files[i], "r");
+
+    if (file == NULL) {
+      printf("error opening file :%s\n", phase_2_files[i]);
+      continue;
+    }
+
+    // new csv file name
+    char *output_file_name = malloc(256 * sizeof(char));
+    strcpy(output_file_name, phase_2_files[i]);
+    int file_name_len = strlen(output_file_name);
+    strcpy(output_file_name + file_name_len - 4, ".csv");
+
+    // create additions for lines
+    char *str_adds = malloc(50 * sizeof(char));
+    int hosp_num_cntr = 1;
+    str_adds[0] = ',';
+
+    // construct additions
+    for (size_t t = 17; t < 21; t++) {
+      str_adds[hosp_num_cntr] = phase_2_files[i][t];
+      hosp_num_cntr++;
+    }
+    str_adds[hosp_num_cntr] = '\0';
+
+    if (strstr(phase_2_files[i], "Active") != NULL) {
+      // strcat relies on '\0' and it will move it for you
+      strcat(str_adds, ",Active,2");
+    } else {
+      strcat(str_adds, ",Not Active,2");
+    }
+
+    printf("addition string add on will be : %s\n", str_adds);
+
+    // open new csv file
+    FILE *outfile_stream = fopen(output_file_name, "w");
+
+    // add header row
+    for (size_t t = 0; HEADER_ROW[t] != '\0'; t++) {
+      fputc(HEADER_ROW[t], outfile_stream);
+    }
+    fputc('\n', outfile_stream);
+
+    // read in lines
+    char *line = malloc(2048 * sizeof(char));
+
+    int c;
+    int line_has_content = 0;
+
+    // read in characters and put in new file
+    while ((c = fgetc(file)) != EOF) {
+      if (c != '\n') {
+        if (isprint(c) != 0) {
+          line_has_content = 1;
+          fputc(c, outfile_stream);
+        }
+      } else {
+        if (line_has_content) {
+          for (size_t t = 0; str_adds[t] != '\0'; t++) {
+            fputc(str_adds[t], outfile_stream);
+          }
+          fputc('\n', outfile_stream);
+        } else {
+          printf("===== LINE IS JUST NEW LINE SO SKIPPING\n");
+        }
+        line_has_content = 0;
+      }
+    }
+
+    printf("==== complete new file processing %s ---> %s\n", phase_2_files[i],
+           output_file_name);
+
+    fclose(file);
+    fclose(outfile_stream);
+
     free(phase_2_files[i]);
+    free(line);
+    free(str_adds);
+    free(output_file_name);
   }
 
-  // phase 3 files changes
+  ///// PHASE 3 files changes
   _chdir(phase_paths[2]);
 
   for (int i = 0; i < 40; i++) {
-    printf("==== reading file name from phase 3 str arry at position %d: %s\n",
+        printf("==== reading file name from phase 3 str arry at position %d: %s\n",
            i, phase_3_files[i]);
 
+    // open file
+    FILE *file = fopen(phase_3_files[i], "r");
+
+    if (file == NULL) {
+      printf("error opening file :%s\n", phase_3_files[i]);
+      continue;
+    }
+
+    // new csv file name
+    char *output_file_name = malloc(256 * sizeof(char));
+    strcpy(output_file_name, phase_3_files[i]);
+    int file_name_len = strlen(output_file_name);
+    strcpy(output_file_name + file_name_len - 4, ".csv");
+
+    // create additions for lines
+    char *str_adds = malloc(50 * sizeof(char));
+    int hosp_num_cntr = 1;
+    str_adds[0] = ',';
+
+    // construct additions
+    for (size_t t = 17; t < 21; t++) {
+      str_adds[hosp_num_cntr] = phase_3_files[i][t];
+      hosp_num_cntr++;
+    }
+    str_adds[hosp_num_cntr] = '\0';
+
+    if (strstr(phase_3_files[i], "Active") != NULL) {
+      // strcat relies on '\0' and it will move it for you
+      strcat(str_adds, ",Active,3");
+    } else {
+      strcat(str_adds, ",Not Active,3");
+    }
+
+    printf("addition string add on will be : %s\n", str_adds);
+
+    // open new csv file
+    FILE *outfile_stream = fopen(output_file_name, "w");
+
+    // add header row
+    for (size_t t = 0; HEADER_ROW[t] != '\0'; t++) {
+      fputc(HEADER_ROW[t], outfile_stream);
+    }
+    fputc('\n', outfile_stream);
+
+    // read in lines
+    char *line = malloc(2048 * sizeof(char));
+
+    int c;
+    int line_has_content = 0;
+
+    // read in characters and put in new file
+    while ((c = fgetc(file)) != EOF) {
+      if (c != '\n') {
+        if (isprint(c) != 0) {
+          line_has_content = 1;
+          fputc(c, outfile_stream);
+        }
+      } else {
+        if (line_has_content) {
+          for (size_t t = 0; str_adds[t] != '\0'; t++) {
+            fputc(str_adds[t], outfile_stream);
+          }
+          fputc('\n', outfile_stream);
+        } else {
+          printf("===== LINE IS JUST NEW LINE SO SKIPPING\n");
+        }
+        line_has_content = 0;
+      }
+    }
+
+    printf("==== complete new file processing %s ---> %s\n", phase_3_files[i],
+           output_file_name);
+
+    fclose(file);
+    fclose(outfile_stream);
+
     free(phase_3_files[i]);
+    free(line);
+    free(str_adds);
+    free(output_file_name);
   }
 
   return EXIT_SUCCESS;
